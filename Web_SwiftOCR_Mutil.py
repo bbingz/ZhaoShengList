@@ -39,7 +39,7 @@ def get_college_names(driver):
 
 def preprocess_image(img_pil):
     img_pil = img_pil.convert("RGBA")
-    border_width = 5
+    border_width = 10
     white_bg = Image.new("RGBA", (img_pil.width + border_width, img_pil.height + border_width), "white")
     white_bg.paste(img_pil, (border_width, border_width), mask=img_pil.split()[3])
     img_with_white_bg = white_bg.convert("RGB")
@@ -137,28 +137,32 @@ def main():
     ws = wb.active
     driver.get('https://www.gxzslm.cn/Main/Xinwen/XW_Jihua.aspx')
     time.sleep(5)
-    select_element = Select(driver.find_element(By.ID, 'ctl00_ContentPlaceHolder1_DropDownList_pici'))
-    select_element.select_by_value('4')
-    time.sleep(5)
-    college_names = get_college_names(driver)
-    total_rows_processed = 0
-    while True:
-        try:
-            # 等待表格元素出现
-            WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, 'ctl00_ContentPlaceHolder1_GridView1')))
-            total_rows_processed = process_table(driver, college_names, ws, total_rows_processed)
-            wb.save('data.xlsx')
-            next_button = driver.find_element(By.ID, 'ctl00_ContentPlaceHolder1_GridView1_ctl33_btnNext')
-            driver.execute_script("arguments[0].scrollIntoView();", next_button)  # 滚动使按钮可见
-            time.sleep(1)  # 等待一下，以确保按钮可见
-            next_button.click()
-            WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, 'ctl00_ContentPlaceHolder1_GridView1')))
-            time.sleep(5)  # 等待一下，以确保页面已加载完成
-        except NoSuchElementException:
-            break
+
+    for batch in range(1, 5):  # 遍历四个批次
+        select_element = Select(driver.find_element(By.ID, 'ctl00_ContentPlaceHolder1_DropDownList_pici'))
+        select_element.select_by_value(str(batch)) 
+        time.sleep(5)
+        college_names = get_college_names(driver)
+        total_rows_processed = 0
+
+        while True:
+            try:
+                # 等待表格元素出现
+                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'ctl00_ContentPlaceHolder1_GridView1')))
+                total_rows_processed = process_table(driver, college_names, ws, total_rows_processed)
+                wb.save('data.xlsx')
+                next_button = driver.find_element(By.ID, 'ctl00_ContentPlaceHolder1_GridView1_ctl33_btnNext')
+                driver.execute_script("arguments[0].scrollIntoView();", next_button)  # 滚动使按钮可见
+                time.sleep(1)  # 等待一下，以确保按钮可见
+                next_button.click()
+                WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, 'ctl00_ContentPlaceHolder1_GridView1')))
+                time.sleep(5)  # 等待一下，以确保页面已加载完成
+            except NoSuchElementException:
+                break
 
     driver.quit()
     pass
+
 
 if __name__ == '__main__':
     main()
