@@ -152,8 +152,8 @@ def main():
             driver.execute_script("arguments[0].scrollIntoView();", next_button)  # 滚动使按钮可见
             time.sleep(1)  # 等待一下，以确保按钮可见
             next_button.click()
-            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'ctl00_ContentPlaceHolder1_GridView1')))
-            time.sleep(1)  # 等待一下，以确保页面已加载完成
+            WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, 'ctl00_ContentPlaceHolder1_GridView1')))
+            time.sleep(2)  # 等待一下，以确保页面已加载完成
         except NoSuchElementException:
             break
 
