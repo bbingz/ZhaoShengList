@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import WebDriverException
 import time
 import io
 import base64
@@ -132,6 +133,8 @@ def process_table(driver, college_names, ws, total_rows_processed):
     return total_rows_processed + total_rows
 
 
+
+
 def main():
     wb = Workbook()
     ws = wb.active
@@ -140,7 +143,7 @@ def main():
 
     for batch in range(1, 5):  # 遍历四个批次
         select_element = Select(driver.find_element(By.ID, 'ctl00_ContentPlaceHolder1_DropDownList_pici'))
-        select_element.select_by_value(str(batch)) 
+        select_element.select_by_value(str(batch))  # 选择批次
         time.sleep(5)
         college_names = get_college_names(driver)
         total_rows_processed = 0
@@ -159,9 +162,16 @@ def main():
                 time.sleep(5)  # 等待一下，以确保页面已加载完成
             except NoSuchElementException:
                 break
+            except WebDriverException:
+                # 重新连接浏览器
+                driver.quit()
+                driver = webdriver.Chrome(chrome_options=options)
+                driver.get('https://www.gxzslm.cn/Main/Xinwen/XW_Jihua.aspx')
+                time.sleep(5)
 
     driver.quit()
     pass
+
 
 
 if __name__ == '__main__':
