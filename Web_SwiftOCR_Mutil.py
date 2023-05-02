@@ -153,7 +153,7 @@ def main():
             time.sleep(1)  # 等待一下，以确保按钮可见
             next_button.click()
             WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, 'ctl00_ContentPlaceHolder1_GridView1')))
-            time.sleep(2)  # 等待一下，以确保页面已加载完成
+            time.sleep(5)  # 等待一下，以确保页面已加载完成
         except NoSuchElementException:
             break
 
