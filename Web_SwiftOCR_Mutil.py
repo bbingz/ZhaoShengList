@@ -19,7 +19,6 @@ import tempfile
 from multiprocessing import Pool
 from concurrent.futures import ThreadPoolExecutor
 
-
 chrome_options = Options()
 chrome_options.add_argument("--window-size=1320,1055") # 设置窗口大小
 
@@ -132,10 +131,8 @@ def process_table(driver, college_names, ws, total_rows_processed):
 
     return total_rows_processed + total_rows
 
-
-
-
 def main():
+    global driver
     wb = Workbook()
     ws = wb.active
     driver.get('https://www.gxzslm.cn/Main/Xinwen/XW_Jihua.aspx')
@@ -147,7 +144,12 @@ def main():
         time.sleep(5)
         college_names = get_college_names(driver)
         total_rows_processed = 0
-
+        
+        # 点击“首页”按钮，确保从第一页开始
+        first_page_button = driver.find_element(By.XPATH, '//*[@id="ctl00_ContentPlaceHolder1_GridView1_ctl33_btnFirst"]')
+        first_page_button.click()
+        time.sleep(5)
+        
         while True:
             try:
                 # 等待表格元素出现
@@ -165,14 +167,12 @@ def main():
             except WebDriverException:
                 # 重新连接浏览器
                 driver.quit()
-                driver = webdriver.Chrome(chrome_options=options)
+                driver = webdriver.Chrome(service=service, options=chrome_options)
                 driver.get('https://www.gxzslm.cn/Main/Xinwen/XW_Jihua.aspx')
                 time.sleep(5)
 
     driver.quit()
     pass
-
-
 
 if __name__ == '__main__':
     main()
